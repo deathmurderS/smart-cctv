@@ -20,11 +20,6 @@ const createEvent = async (req, res) => {
             data: { cameraId: parseInt(cameraId), type },
             include: { camera: true }
         })
-
-        // kirim realtime update ke semua client
-        const io = req.app.get('io')
-        io.emit('new_event', event)
-
         res.status(201).json(event)
     } catch (error) {
         res.status(500).json({ message: error.message })
