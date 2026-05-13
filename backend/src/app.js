@@ -17,6 +17,13 @@ app.use(cors({
     credentials: true
 }))
 
+app.get('/api/debug', (req, res) => {
+    res.json({
+        db: process.env.DATABASE_URL ? 'set' : 'missing',
+        jwt: process.env.JWT_SECRET ? 'set' : 'missing'
+    })
+})
+
 app.use(express.json())
 
 app.use('/api/cameras', cameraRoutes)
