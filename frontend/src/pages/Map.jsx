@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useref } from 'react'
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import Navbar from '../components/Navbar'
 import api from '../utils/api'
+import Hls from 'hls.js'
 
 delete L.Icon.Default.prototype._getIconUrl
 L.Icon.Default.mergeOptions({
@@ -23,6 +24,32 @@ const redIcon = new L.Icon({
     shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
     iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34],
 })
+
+const StreamPlayer = ({ url }) => {
+    const videoRef = useRef(null)
+
+    useEffect(() => {
+        if (!url || !videoRef.current) return
+        if (Hls.isSupported()) {
+            const hls = new Hls()
+            hls.loadSource(url)
+            hls.attachMedia(videoRef.current)
+            return () => hls.destroy()
+        } else if (videoRef.current.canPlayType('application/vnd.apple.mpegurl')) {
+            videoRef.current.src = url
+        }
+    }, [url])
+
+    return (
+        <video
+            ref={videoRef}
+            controls
+            autoPlay
+            muted
+            style={{ width: '100%', borderRadius: '4px', marginBottom: '8px', background: '#000' }}
+        />
+    )
+}
 
 const Map = () => {
     const [cameras, setCameras] = useState([])
@@ -108,8 +135,20 @@ const Map = () => {
                                 position={[camera.latitude, camera.longitude]}
                                 icon={camera.status === 'online' ? greenIcon : redIcon}
                             >
-                                <Popup>
-                                    <div style={{ minWidth: '200px' }}>
+                                <Popup maxWidth={320}>
+                                    <div style={{ width: '300px' }}>
+                                        {camera.streamUrl && camera.status === 'online' && (
+                                            <StreamPlayer url={camera.streamUrl} />
+                                        )}
+                                        {camera.status === 'offline' && (
+                                            <div style={{
+                                                width: '100%', height: '120px', background: '#111',
+                                                borderRadius: '4px', marginBottom: '8px',
+                                                display: 'flex', alignItems: 'center', justifyContent: 'center'
+                                            }}>
+                                                <span style={{ color: '#666', fontSize: '13px' }}>Stream tidak tersedia</span>
+                                            </div>
+                                        )}
                                         <strong>{camera.name}</strong>
                                         <p style={{ margin: '4px 0', color: '#666', fontSize: '13px' }}>{camera.location}</p>
                                         <span style={{
@@ -119,13 +158,6 @@ const Map = () => {
                                         }}>
                                             {camera.status === 'online' ? 'Online' : 'Offline'}
                                         </span>
-                                        {camera.streamUrl && camera.status === 'online' && (
-                                            <div style={{ marginTop: '8px' }}>
-                                                <a href={camera.streamUrl} target="_blank" rel="noreferrer" style={{ color: '#1890ff', fontSize: '13px' }}>
-                                                    Buka Stream
-                                                </a>
-                                            </div>
-                                        )}
                                     </div>
                                 </Popup>
                             </Marker>
