@@ -50,4 +50,28 @@ const deleteCamera = async (req, res) => {
     }
 }
 
-module.exports = { getAllCameras, createCamera, updateCamera, deleteCamera }
+const checkStreamHealth = async (req, res) => {
+    const { id } = req.params
+    try {
+        const camera = await prisma.camera.findUnique({ where: { id: parseInt(id) } })
+        if (!camera || !camera.streamUrl) return res.json({ status: 'offline' })
+
+        const response = await fetch(camera.streamUrl, { method: 'HEAD', signal: AbortSignal.timeout(5000) })
+        const isOnline = response.ok
+
+        await prisma.camera.update({
+            where: { id: parseInt(id) },
+            data: { status: isOnline ? 'online' : 'offline' }
+        })
+
+        res.json({ status: isOnline ? 'online' : 'offline' })
+    } catch {
+        await prisma.camera.update({
+            where: { id: parseInt(id) },
+            data: { status: 'offline' }
+        })
+        res.json({ status: 'offline' })
+    }
+}
+
+module.exports = { getAllCameras, createCamera, updateCamera, deleteCamera, checkStreamHealth }

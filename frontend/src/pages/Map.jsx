@@ -27,11 +27,26 @@ const redIcon = new L.Icon({
 const Map = () => {
     const [cameras, setCameras] = useState([])
     const [filter, setFilter] = useState('all')
+    const [checking, setChecking] = useState(true)
 
     useEffect(() => {
-        api.get('/cameras').then(res => {
+        api.get('/cameras').then(async res => {
             const withCoords = res.data.filter(c => c.latitude && c.longitude)
             setCameras(withCoords)
+
+            // cek health tiap kamera secara paralel
+            const healthChecks = withCoords.map(camera =>
+                api.get(`/cameras/${camera.id}/health`)
+                    .then(r => ({ id: camera.id, status: r.data.status }))
+                    .catch(() => ({ id: camera.id, status: 'offline' }))
+            )
+
+            const results = await Promise.all(healthChecks)
+            setCameras(prev => prev.map(cam => {
+                const health = results.find(r => r.id === cam.id)
+                return health ? { ...cam, status: health.status } : cam
+            }))
+            setChecking(false)
         })
     }, [])
 
@@ -49,7 +64,11 @@ const Map = () => {
             <Navbar />
             <div style={{ padding: '24px' }}>
                 <h2>Peta CCTV Metro Jaya</h2>
-
+                {checking && (
+                    <p style={{ color: '#888', fontSize: '13px', marginTop: '-12px' }}>
+                        ⏳ Mengecek status stream...
+                    </p>
+                )}
                 <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
                     <div style={{ background: 'white', borderRadius: '8px', padding: '16px 24px', boxShadow: '0 2px 8px rgba(0,0,0,0.1)', borderLeft: '4px solid #1890ff' }}>
                         <p style={{ margin: 0, color: '#888', fontSize: '13px' }}>Total Kamera</p>
