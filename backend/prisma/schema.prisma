@@ -21,6 +21,10 @@ model Camera {
   name      String
   location  String
   status    String   @default("online")
+  latitude  Float?
+  longitude Float?
+  streamUrl String?
+  wilayah   String?
   createdAt DateTime @default(now())
   events    Event[]
 }

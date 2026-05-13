@@ -3,6 +3,7 @@ import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
 import Cameras from './pages/Cameras'
 import Events from './pages/Events'
+import Map from './pages/Map'
 
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem('token')
@@ -17,6 +18,7 @@ const App = () => {
         <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
         <Route path="/cameras" element={<PrivateRoute><Cameras /></PrivateRoute>} />
         <Route path="/events" element={<PrivateRoute><Events /></PrivateRoute>} />
+        <Route path="/map" element={<PrivateRoute><Map /></PrivateRoute>} />
       </Routes>
     </BrowserRouter>
   )

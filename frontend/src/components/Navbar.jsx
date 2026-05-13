@@ -17,6 +17,7 @@ const Navbar = () => {
                 <span onClick={() => navigate('/dashboard')} style={{ color: 'white', cursor: 'pointer' }}>Dashboard</span>
                 <span onClick={() => navigate('/cameras')} style={{ color: 'white', cursor: 'pointer' }}>Cameras</span>
                 <span onClick={() => navigate('/events')} style={{ color: 'white', cursor: 'pointer' }}>Events</span>
+                <span onClick={() => navigate('/map')} style={{ color: 'white', cursor: 'pointer' }}>Map</span>
                 <span style={{ color: '#aaa' }}>|</span>
                 <span style={{ color: 'white' }}>{user.name}</span>
                 <button onClick={handleLogout} style={{ background: '#ff4d4f', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '4px', cursor: 'pointer' }}>
