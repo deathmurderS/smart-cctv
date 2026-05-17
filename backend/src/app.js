@@ -33,6 +33,9 @@ app.get('/api/debug', (req, res) => {
 
 app.get('/api/seed-all', async (req, res) => {
     const secret = req.query.secret
+    const offset = parseInt(req.query.offset) || 0
+    const limit = 200
+
     if (secret !== 'seed_metro_2026') return res.status(401).json({ message: 'Unauthorized' })
 
     try {
@@ -42,20 +45,22 @@ app.get('/api/seed-all', async (req, res) => {
         const response = await fetch('https://gist.githubusercontent.com/deathmurderS/945a558b6708232582bd679aadd6222d/raw/4f01874668ad73be7e921f88385d62bf18b5a33b/seedAll.json')
         const allCameras = await response.json()
 
-        await prisma.camera.deleteMany({
-            where: { wilayah: { not: 'POLDA METRO JAYA' } }
-        })
-
-        const batchSize = 100
-        let total = 0
-        for (let i = 0; i < allCameras.length; i += batchSize) {
-            const batch = allCameras.slice(i, i + batchSize)
-            await prisma.camera.createMany({ data: batch, skipDuplicates: true })
-            total += batch.length
+        const batch = allCameras.slice(offset, offset + limit)
+        if (batch.length === 0) {
+            await prisma.$disconnect()
+            return res.json({ message: 'All done!', total: allCameras.length })
         }
 
+        await prisma.camera.createMany({ data: batch, skipDuplicates: true })
         await prisma.$disconnect()
-        res.json({ message: 'Done!', total })
+
+        res.json({
+            message: `Inserted batch`,
+            inserted: batch.length,
+            offset,
+            next: offset + limit,
+            remaining: allCameras.length - (offset + limit)
+        })
     } catch (err) {
         res.status(500).json({ message: err.message })
     }
