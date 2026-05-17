@@ -17,6 +17,13 @@ app.use(cors({
     credentials: true
 }))
 
+app.use(express.json())
+
+app.use('/api/cameras', cameraRoutes)
+app.use('/api/events', eventRoutes)
+app.use('/api/auth', authRoutes)
+app.use('/api/analytics', analyticsRoutes)
+
 app.get('/api/debug', (req, res) => {
     res.json({
         db: process.env.DATABASE_URL ? 'set' : 'missing',
@@ -24,11 +31,32 @@ app.get('/api/debug', (req, res) => {
     })
 })
 
-app.use(express.json())
+app.get('/api/seed-all', async (req, res) => {
+    const secret = req.query.secret
+    if (secret !== 'seed_metro_2026') return res.status(401).json({ message: 'Unauthorized' })
 
-app.use('/api/cameras', cameraRoutes)
-app.use('/api/events', eventRoutes)
-app.use('/api/auth', authRoutes)
-app.use('/api/analytics', analyticsRoutes)
+    try {
+        const { PrismaClient } = require('@prisma/client')
+        const prisma = new PrismaClient()
+        const allCameras = require('../prisma/seedAll.json')
+
+        await prisma.camera.deleteMany({
+            where: { wilayah: { not: 'POLDA METRO JAYA' } }
+        })
+
+        const batchSize = 100
+        let total = 0
+        for (let i = 0; i < allCameras.length; i += batchSize) {
+            const batch = allCameras.slice(i, i + batchSize)
+            await prisma.camera.createMany({ data: batch, skipDuplicates: true })
+            total += batch.length
+        }
+
+        await prisma.$disconnect()
+        res.json({ message: 'Done!', total })
+    } catch (err) {
+        res.status(500).json({ message: err.message })
+    }
+})
 
 module.exports = app

@@ -7,6 +7,7 @@
     "dev": "nodemon src/index.js",
     "seed": "node prisma/seed.js",
     "seedMetro": "node prisma/seedMetro.js",
+    "seedAll": "node prisma/seedAll.js",
     "build": "prisma generate",
     "vercel-build": "prisma generate"
   },
