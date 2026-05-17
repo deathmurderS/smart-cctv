@@ -38,7 +38,9 @@ app.get('/api/seed-all', async (req, res) => {
     try {
         const { PrismaClient } = require('@prisma/client')
         const prisma = new PrismaClient()
-        const allCameras = require('../prisma/seedAll.json')
+
+        const response = await fetch('https://gist.githubusercontent.com/deathmurderS/945a558b6708232582bd679aadd6222d/raw/4f01874668ad73be7e921f88385d62bf18b5a33b/seedAll.json')
+        const allCameras = await response.json()
 
         await prisma.camera.deleteMany({
             where: { wilayah: { not: 'POLDA METRO JAYA' } }
