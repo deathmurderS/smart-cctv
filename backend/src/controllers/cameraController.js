@@ -3,8 +3,19 @@ const prisma = new PrismaClient()
 
 const getAllCameras = async (req, res) => {
     try {
+        const { wilayah } = req.query
         const cameras = await prisma.camera.findMany({
-            include: { events: true }
+            where: wilayah ? { wilayah } : undefined,
+            select: {
+                id: true,
+                name: true,
+                location: true,
+                status: true,
+                latitude: true,
+                longitude: true,
+                streamUrl: true,
+                wilayah: true
+            }
         })
         res.json(cameras)
     } catch (error) {

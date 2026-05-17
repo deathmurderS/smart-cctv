@@ -8,5 +8,6 @@ router.get('/', authMiddleware, getAllCameras)
 router.post('/', authMiddleware, createCamera)
 router.put('/:id', authMiddleware, updateCamera)
 router.delete('/:id', authMiddleware, deleteCamera)
+router.get('/', authMiddleware, getAllCameras)
 
 module.exports = router

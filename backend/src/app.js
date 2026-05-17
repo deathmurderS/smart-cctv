@@ -31,6 +31,22 @@ app.get('/api/debug', (req, res) => {
     })
 })
 
+app.get('/api/cleanup', async (req, res) => {
+    const secret = req.query.secret
+    if (secret !== 'cleanup_2026') return res.status(401).json({ message: 'Unauthorized' })
+
+    try {
+        const { PrismaClient } = require('@prisma/client')
+        const prisma = new PrismaClient()
+        await prisma.event.deleteMany()
+        await prisma.camera.deleteMany()
+        await prisma.$disconnect()
+        res.json({ message: 'All data cleared!' })
+    } catch (err) {
+        res.status(500).json({ message: err.message })
+    }
+})
+
 app.get('/api/seed-all', async (req, res) => {
     const secret = req.query.secret
     const offset = parseInt(req.query.offset) || 0
