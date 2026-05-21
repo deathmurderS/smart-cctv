@@ -1,15 +1,26 @@
 # 🎥 Smart CCTV Monitoring & Analytics Dashboard
 
-A full-stack real-time CCTV monitoring dashboard built for portfolio purposes, demonstrating backend, database, analytics, and frontend skills.
+A full-stack real-time CCTV monitoring dashboard built for portfolio purposes, demonstrating backend, database, analytics, and frontend skills. Features a live map of **3,600+ CCTV cameras** across Indonesia sourced from Korlantas RTMC.
 
 ## 🌐 Live Demo
 
-- **Frontend:** _coming soon_
-- **Backend API:** _coming soon_
+- **Frontend:** [smart-cctv-2xpc.vercel.app](https://smart-cctv-2xpc.vercel.app)
+- **Backend API:** [smart-cctv-xi.vercel.app](https://smart-cctv-xi.vercel.app)
+
+> Default login: `admin@smartcctv.com` / `123456`
 
 ---
 
-## 🧠 System Overview
+## ✨ Features
+
+- 🔐 **JWT Authentication** — secure login & protected routes
+- 📷 **Camera Management** — add, update, delete cameras
+- ⚡ **Event Simulation** — simulate motion detection, person detected, camera online/offline
+- 📈 **Analytics Dashboard** — events by hour & location with interactive charts
+- 🗺️ **Interactive Map** — 3,600+ CCTV cameras across Indonesia with marker clustering
+- 🎥 **Live Stream Viewer** — HLS stream player embedded directly in map popup
+- 🌸 **Japanese Pastel UI** — soft pastel aesthetic with Zen Kaku Gothic font
+- 🗄️ **PostgreSQL + Prisma** — relational database with ORM
 
 ---
 
@@ -18,26 +29,30 @@ A full-stack real-time CCTV monitoring dashboard built for portfolio purposes, d
 ### Backend
 - **Express.js** — REST API & middleware
 - **Prisma ORM** — database queries
-- **PostgreSQL** — relational database
+- **PostgreSQL** — relational database (Supabase)
 - **JWT** — authentication
-- **Socket.IO** — realtime updates
 - **bcryptjs** — password hashing
 
 ### Frontend
-- **React** — UI framework
+- **React + Vite** — UI framework
+- **React Leaflet** — interactive map
+- **React Leaflet Cluster** — marker clustering for performance
+- **HLS.js** — live stream player
 - **Recharts** — data visualization
 - **Axios** — HTTP client
-- **Socket.IO Client** — realtime updates
 - **React Router** — client-side routing
 
 ---
 
 ## 📁 Project Structure
+
+```
 smart-cctv/
 ├── backend/
 │   ├── prisma/
 │   │   ├── schema.prisma
-│   │   └── seed.js
+│   │   ├── seed.js
+│   │   └── seedMetro.js
 │   ├── src/
 │   │   ├── controllers/
 │   │   │   ├── authController.js
@@ -51,26 +66,30 @@ smart-cctv/
 │   │   │   ├── cameras.js
 │   │   │   ├── events.js
 │   │   │   └── analytics.js
+│   │   ├── app.js
 │   │   └── index.js
-│   ├── .env
+│   ├── api/
+│   │   └── index.js
 │   └── package.json
 └── frontend/
-├── src/
-│   ├── components/
-│   │   ├── Navbar.jsx
-│   │   ├── StatCard.jsx
-│   │   └── EventTable.jsx
-│   ├── hooks/
-│   │   └── useSocket.js
-│   ├── pages/
-│   │   ├── Login.jsx
-│   │   ├── Dashboard.jsx
-│   │   ├── Cameras.jsx
-│   │   └── Events.jsx
-│   ├── utils/
-│   │   └── api.js
-│   └── App.jsx
-└── package.json
+    ├── src/
+    │   ├── components/
+    │   │   ├── Navbar.jsx
+    │   │   ├── StatCard.jsx
+    │   │   └── EventTable.jsx
+    │   ├── hooks/
+    │   │   └── useSocket.js
+    │   ├── pages/
+    │   │   ├── Login.jsx
+    │   │   ├── Dashboard.jsx
+    │   │   ├── Cameras.jsx
+    │   │   ├── Events.jsx
+    │   │   └── Map.jsx
+    │   ├── utils/
+    │   │   └── api.js
+    │   └── App.jsx
+    └── package.json
+```
 
 ---
 
@@ -83,7 +102,7 @@ smart-cctv/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/username/smart-cctv.git
+git clone https://github.com/deathmurderS/smart-cctv.git
 cd smart-cctv
 ```
 
@@ -114,6 +133,12 @@ Seed dummy data:
 npm run seed
 ```
 
+Seed Metro Jaya CCTV data:
+
+```bash
+npm run seedMetro
+```
+
 Start backend server:
 
 ```bash
@@ -125,14 +150,28 @@ npm run dev
 ```bash
 cd frontend
 npm install
+```
+
+Create `.env` file:
+
+```env
+VITE_API_URL=http://localhost:3000/api
+```
+
+Start frontend:
+
+```bash
 npm run dev
 ```
 
 Open `http://localhost:5173` in your browser.
 
 ### 4. Default Login
+
+```
 Email: admin@smartcctv.com
 Password: 123456
+```
 
 ---
 
@@ -147,10 +186,11 @@ Password: 123456
 ### Cameras
 | Method | Endpoint | Description | Auth |
 |---|---|---|---|
-| GET | /api/cameras | Get all cameras | ✅ |
+| GET | /api/cameras | Get all cameras (filter by ?wilayah=) | ✅ |
 | POST | /api/cameras | Create camera | ✅ |
 | PUT | /api/cameras/:id | Update camera | ✅ |
 | DELETE | /api/cameras/:id | Delete camera | ✅ |
+| GET | /api/cameras/:id/health | Check stream health | ✅ |
 
 ### Events
 | Method | Endpoint | Description | Auth |
@@ -168,19 +208,40 @@ Password: 123456
 
 ---
 
-## 📊 Features
+## 🗺️ CCTV Map
 
-- 🔐 **JWT Authentication** — secure login & protected routes
-- 📷 **Camera Management** — add, update, delete cameras
-- ⚡ **Realtime Updates** — live event notifications via Socket.IO
-- 📈 **Analytics Dashboard** — events by hour & location charts
-- 🗄️ **PostgreSQL Database** — relational data with Prisma ORM
-- 🌱 **Seed Data** — 500 dummy events across 7 days
+The map features **3,600+ real CCTV cameras** from across Indonesia sourced from Korlantas RTMC, including:
+
+- POLDA Metro Jaya (Jakarta)
+- POLDA Jawa Barat
+- POLDA Jawa Tengah
+- POLDA Jawa Timur
+- POLDA Bali
+- POLDA Sumatera Utara
+- And 20+ other regions
+
+Each camera marker shows:
+- 🟢 Online / 🔴 Offline status
+- Live HLS stream (for online cameras)
+- Camera name & location
+
+---
+
+## 💼 Skills Demonstrated
+
+| Area | Skills |
+|---|---|
+| Backend | Express.js, REST API, JWT Auth, Middleware, Error Handling |
+| Database | PostgreSQL, Prisma ORM, SQL, Relationships |
+| Frontend | React, Component Design, State Management |
+| Data Viz | Recharts, Analytics Dashboard |
+| Maps | React Leaflet, Marker Clustering, HLS Streaming |
+| DevOps | Vercel Deployment, Supabase, Environment Variables |
 
 ---
 
 ## 👤 Author
 
-**Zaky**
+**Muhammad Zaky Zamzami**
 - GitHub: [@deathmurderS](https://github.com/deathmurderS)
 - LinkedIn: [linkedin.com/in/username](https://www.linkedin.com/in/muhammad-zaky-zamzami-b872b7306/)
