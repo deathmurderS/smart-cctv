@@ -42,3 +42,24 @@ body {
   background: var(--pink-dark);
   border-radius: 3px;
 }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .desktop-menu {
+    display: none !important;
+  }
+
+  .mobile-menu-btn {
+    display: block !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-menu-btn {
+    display: none !important;
+  }
+
+  .mobile-dropdown {
+    display: none !important;
+  }
+}
