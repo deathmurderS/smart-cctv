@@ -52,83 +52,68 @@ const Dashboard = () => {
     }
 
     return (
-        <div style={{
-            minHeight: '100vh',
-            background: 'linear-gradient(135deg, #fde8ed 0%, #ede8f7 50%, #e8f7f2 100%)',
-            display: 'flex', justifyContent: 'center', alignItems: 'center',
-            fontFamily: 'Zen Kaku Gothic New, sans-serif',
-            padding: '16px'
-        }}>
-            <div style={{ position: 'fixed', top: '-100px', left: '-100px', width: '400px', height: '400px', borderRadius: '50%', background: 'rgba(247,197,208,0.3)', pointerEvents: 'none' }} />
-            <div style={{ position: 'fixed', bottom: '-100px', right: '-100px', width: '500px', height: '500px', borderRadius: '50%', background: 'rgba(201,184,232,0.3)', pointerEvents: 'none' }} />
-
-            <div style={{
-                background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(20px)',
-                padding: '40px 32px', borderRadius: '24px',
-                width: '100%', maxWidth: '380px',
-                boxShadow: '0 8px 40px rgba(247,197,208,0.4)',
-                border: '1px solid rgba(255,255,255,0.8)', position: 'relative'
-            }}>
-                <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-                    <div style={{ fontSize: '48px', marginBottom: '8px' }}>🌸</div>
-                    <h2 style={{ margin: 0, color: '#4a4a4a', fontSize: '24px', fontWeight: '700' }}>Smart CCTV</h2>
-                    <p style={{ margin: '4px 0 0', color: '#8a8a8a', fontSize: '13px' }}>Monitor. Analyze. Protect.</p>
-                </div>
-
-                {error && (
-                    <div style={{
-                        background: '#fff2f0', border: '1px solid #f7c5d0',
-                        borderRadius: '12px', padding: '10px 16px',
-                        marginBottom: '16px', color: '#e8a0b0', fontSize: '13px', textAlign: 'center'
-                    }}>
-                        {error}
-                    </div>
-                )}
-
-                <div style={{ marginBottom: '16px' }}>
-                    <label style={{ display: 'block', marginBottom: '6px', color: '#4a4a4a', fontSize: '13px', fontWeight: '500' }}>Email</label>
-                    <input
-                        type="email" placeholder="your@email.com" value={email}
-                        onChange={e => setEmail(e.target.value)}
-                        style={{
-                            width: '100%', padding: '12px 16px', borderRadius: '12px',
-                            border: '1px solid #f7c5d0', background: '#fdf6f0', fontSize: '14px',
-                            fontFamily: 'Zen Kaku Gothic New, sans-serif', outline: 'none',
-                            boxSizing: 'border-box'
-                        }}
-                        onFocus={e => e.target.style.border = '1px solid #c9b8e8'}
-                        onBlur={e => e.target.style.border = '1px solid #f7c5d0'}
-                    />
-                </div>
+        <div style={{ minHeight: '100vh', background: '#fdf6f0' }}>
+            <Navbar />
+            <div style={{ padding: '16px' }}>
 
                 <div style={{ marginBottom: '24px' }}>
-                    <label style={{ display: 'block', marginBottom: '6px', color: '#4a4a4a', fontSize: '13px', fontWeight: '500' }}>Password</label>
-                    <input
-                        type="password" placeholder="••••••••" value={password}
-                        onChange={e => setPassword(e.target.value)}
-                        onKeyDown={e => e.key === 'Enter' && handleLogin()}
-                        style={{
-                            width: '100%', padding: '12px 16px', borderRadius: '12px',
-                            border: '1px solid #f7c5d0', background: '#fdf6f0', fontSize: '14px',
-                            fontFamily: 'Zen Kaku Gothic New, sans-serif', outline: 'none',
-                            boxSizing: 'border-box'
-                        }}
-                        onFocus={e => e.target.style.border = '1px solid #c9b8e8'}
-                        onBlur={e => e.target.style.border = '1px solid #f7c5d0'}
-                    />
+                    <h2 style={{ margin: 0, color: '#4a4a4a', fontSize: '24px' }}>🌸 Dashboard</h2>
+                    <p style={{ margin: '4px 0 0', color: '#8a8a8a', fontSize: '13px' }}>Welcome back! Here is your CCTV overview.</p>
                 </div>
 
-                <button onClick={handleLogin} disabled={loading} style={{
-                    width: '100%', padding: '14px',
-                    background: 'linear-gradient(135deg, #f7c5d0, #c9b8e8)',
-                    border: 'none', borderRadius: '12px', color: 'white',
-                    fontSize: '15px', fontWeight: '600',
-                    fontFamily: 'Zen Kaku Gothic New, sans-serif',
-                    cursor: loading ? 'not-allowed' : 'pointer',
-                    boxShadow: '0 4px 15px rgba(247,197,208,0.5)', opacity: loading ? 0.7 : 1
-                }}>
-                    {loading ? '✨ Logging in...' : '🌸 Login'}
-                </button>
+                <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexWrap: 'wrap' }}>
+                    <div style={{ flex: '1 1 200px' }}><StatCard title="Total Cameras" value={summary.totalCameras || 0} color="#f7c5d0" icon="📷" /></div>
+                    <div style={{ flex: '1 1 200px' }}><StatCard title="Online Cameras" value={summary.onlineCameras || 0} color="#b8e0d2" icon="🟢" /></div>
+                    <div style={{ flex: '1 1 200px' }}><StatCard title="Total Events" value={summary.totalEvents || 0} color="#c9b8e8" icon="⚡" /></div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexWrap: 'wrap' }}>
+                    <div style={{ flex: '2 1 300px', background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 20px rgba(247,197,208,0.3)', border: '1px solid #f7c5d040' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                            <span style={{ fontSize: '20px' }}>📊</span>
+                            <h3 style={{ margin: 0, color: '#4a4a4a' }}>Events by Hour</h3>
+                        </div>
+                        <ResponsiveContainer width="100%" height={250}>
+                            <BarChart data={byHour}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#fde8ed" />
+                                <XAxis dataKey="hour" tick={{ fontSize: 11, fill: '#8a8a8a' }} />
+                                <YAxis tick={{ fontSize: 11, fill: '#8a8a8a' }} />
+                                <Tooltip content={<CustomTooltip />} />
+                                <Bar dataKey="total" fill="url(#pinkGradient)" radius={[6, 6, 0, 0]} />
+                                <defs>
+                                    <linearGradient id="pinkGradient" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stopColor="#f7c5d0" />
+                                        <stop offset="100%" stopColor="#c9b8e8" />
+                                    </linearGradient>
+                                </defs>
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+
+                    <div style={{ flex: '1 1 300px', background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 20px rgba(247,197,208,0.3)', border: '1px solid #f7c5d040' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
+                            <span style={{ fontSize: '20px' }}>📍</span>
+                            <h3 style={{ margin: 0, color: '#4a4a4a' }}>Events by Location</h3>
+                        </div>
+                        <ResponsiveContainer width="100%" height={250}>
+                            <BarChart data={byLocation} layout="vertical">
+                                <CartesianGrid strokeDasharray="3 3" stroke="#fde8ed" />
+                                <XAxis type="number" tick={{ fontSize: 11, fill: '#8a8a8a' }} />
+                                <YAxis dataKey="location" type="category" tick={{ fontSize: 10, fill: '#8a8a8a' }} width={80} />
+                                <Tooltip content={<CustomTooltip />} />
+                                <Bar dataKey="total" fill="url(#mintGradient)" radius={[0, 6, 6, 0]} />
+                                <defs>
+                                    <linearGradient id="mintGradient" x1="0" y1="0" x2="1" y2="0">
+                                        <stop offset="0%" stopColor="#b8e0d2" />
+                                        <stop offset="100%" stopColor="#c9b8e8" />
+                                    </linearGradient>
+                                </defs>
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </div>
+
+                <EventTable events={events.slice(0, 10)} />
             </div>
         </div>
     )
