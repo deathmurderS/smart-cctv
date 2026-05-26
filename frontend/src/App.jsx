@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react";
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Login from './pages/Login'
 import Dashboard from './pages/Dashboard'
@@ -12,16 +13,18 @@ const PrivateRoute = ({ children }) => {
 
 const App = () => {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-        <Route path="/cameras" element={<PrivateRoute><Cameras /></PrivateRoute>} />
-        <Route path="/events" element={<PrivateRoute><Events /></PrivateRoute>} />
-        <Route path="/map" element={<PrivateRoute><Map /></PrivateRoute>} />
-      </Routes>
-    </BrowserRouter>
+    <Sentry.ErrorBoundary fallback={<p>Terjadi kesalahan. Silakan refresh halaman.</p>}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+          <Route path="/cameras" element={<PrivateRoute><Cameras /></PrivateRoute>} />
+          <Route path="/events" element={<PrivateRoute><Events /></PrivateRoute>} />
+          <Route path="/map" element={<PrivateRoute><Map /></PrivateRoute>} />
+        </Routes>
+      </BrowserRouter>
+    </Sentry.ErrorBoundary>
   )
 }
 
-export default App
+export default Sentry.withProfiler(App)

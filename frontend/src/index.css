@@ -4,6 +4,12 @@
   box-sizing: border-box;
 }
 
+html, body {
+  overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
+}
+
 body {
   font-family: 'Zen Kaku Gothic New', sans-serif;
   background-color: #fdf6f0;
@@ -67,6 +73,10 @@ body {
 /* Responsive Utilities */
 .page-container {
   padding: 32px;
+  width: 100%;
+  max-width: 100vw;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .table-card {
@@ -75,6 +85,10 @@ body {
   padding: 24px;
   box-shadow: var(--shadow);
   border: 1px solid #f7c5d040;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .map-wrapper {
@@ -84,6 +98,14 @@ body {
 
 .stats-card {
   padding: 16px 24px;
+}
+
+.filter-controls {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  align-items: center;
 }
 
 @media (max-width: 768px) {

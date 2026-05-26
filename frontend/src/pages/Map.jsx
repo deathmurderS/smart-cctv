@@ -188,7 +188,7 @@ const Map = () => {
                 </div>
 
                 {/* Filter */}
-                <div className="filter-controls" style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
+                <div className="filter-controls">
                     <select
                         value={wilayah}
                         onChange={e => { setWilayah(e.target.value); setPage(1) }}
