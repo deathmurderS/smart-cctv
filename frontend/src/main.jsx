@@ -1,4 +1,5 @@
 import * as Sentry from "@sentry/react";
+import ReactGA from "react-ga4";
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
@@ -14,6 +15,8 @@ Sentry.init({
   replaysSessionSampleRate: 0.1,
   replaysOnErrorSampleRate: 1.0,
 });
+
+ReactGA.initialize("G-XMLLV210SV");
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
