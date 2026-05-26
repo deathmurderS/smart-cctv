@@ -156,7 +156,7 @@ const Map = () => {
     return (
         <div style={{ minHeight: '100vh', background: '#fdf6f0' }}>
             <Navbar />
-            <div style={{ padding: '32px' }}>
+            <div className="page-container">
                 <div style={{ marginBottom: '24px' }}>
                     <h2 style={{ margin: 0, color: '#4a4a4a' }}>🗺️ Peta CCTV Indonesia</h2>
                     <p style={{ margin: '4px 0 0', color: '#8a8a8a', fontSize: '13px' }}>
@@ -176,9 +176,9 @@ const Map = () => {
                         { label: 'Offline', value: offline, color: '#f7c5d0', icon: '🔴' },
                         { label: 'Ditampilkan', value: filtered.length, color: '#c9b8e8', icon: '🔍' },
                     ].map(item => (
-                        <div key={item.label} style={{
-                            background: 'white', borderRadius: '16px', padding: '16px 24px',
-                            boxShadow: '0 4px 20px rgba(247,197,208,0.3)',
+                        <div key={item.label} className="stats-card" style={{
+                            background: 'white', borderRadius: '16px',
+                            boxShadow: 'var(--shadow)',
                             border: `1px solid ${item.color}40`, flex: 1, minWidth: '120px'
                         }}>
                             <p style={{ margin: 0, color: '#8a8a8a', fontSize: '13px' }}>{item.icon} {item.label}</p>
@@ -188,7 +188,7 @@ const Map = () => {
                 </div>
 
                 {/* Filter */}
-                <div style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
+                <div className="filter-controls" style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap', alignItems: 'center' }}>
                     <select
                         value={wilayah}
                         onChange={e => { setWilayah(e.target.value); setPage(1) }}
@@ -258,7 +258,7 @@ const Map = () => {
                         </div>
                     )}
 
-                    <MapContainer center={[-2.5, 118]} zoom={5} style={{ height: '500px', width: '100%' }}>
+                    <MapContainer center={[-2.5, 118]} zoom={5} className="map-wrapper">
                         <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                         <MapController wilayah={wilayah} />
                         <MarkerClusterGroup
@@ -303,7 +303,7 @@ const Map = () => {
                 </div>
 
                 {/* Table with pagination */}
-                <div style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 20px rgba(247,197,208,0.3)', border: '1px solid #f7c5d040' }}>
+                <div className="table-card">
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <span style={{ fontSize: '18px' }}>📋</span>
@@ -322,9 +322,10 @@ const Map = () => {
                             </button>
                         </div>
                     </div>
-                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                        <thead>
-                            <tr style={{ background: 'linear-gradient(135deg, #fde8ed, #ede8f7)' }}>
+                    <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', margin: '0 -16px', padding: '0 16px' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px' }}>
+                            <thead>
+                                <tr style={{ background: 'linear-gradient(135deg, #fde8ed, #ede8f7)' }}>
                                 {['Nama', 'Lokasi', 'Wilayah', 'Status', 'Stream'].map(h => (
                                     <th key={h} style={{ padding: '12px 16px', textAlign: 'left', borderBottom: '2px solid #f7c5d0', color: '#4a4a4a', fontWeight: '600', fontSize: '13px' }}>{h}</th>
                                 ))}
@@ -365,6 +366,7 @@ const Map = () => {
                             ))}
                         </tbody>
                     </table>
+                    </div>
                 </div>
             </div>
         </div>

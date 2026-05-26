@@ -49,7 +49,7 @@ const Cameras = () => {
     return (
         <div style={{ minHeight: '100vh', background: '#fdf6f0' }}>
             <Navbar />
-            <div style={{ padding: '16px' }}>
+            <div className="page-container">
                 <div style={{ marginBottom: '16px' }}>
                     <h2 style={{ margin: 0, color: '#4a4a4a', fontSize: '20px' }}>📷 Cameras</h2>
                     <p style={{ margin: '4px 0 0', color: '#8a8a8a', fontSize: '13px' }}>Manage your CCTV cameras.</p>

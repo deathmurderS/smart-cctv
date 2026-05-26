@@ -54,7 +54,7 @@ const Dashboard = () => {
     return (
         <div style={{ minHeight: '100vh', background: '#fdf6f0' }}>
             <Navbar />
-            <div style={{ padding: '16px' }}>
+            <div className="page-container">
 
                 <div style={{ marginBottom: '24px' }}>
                     <h2 style={{ margin: 0, color: '#4a4a4a', fontSize: '24px' }}>🌸 Dashboard</h2>
