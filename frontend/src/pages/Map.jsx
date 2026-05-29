@@ -26,23 +26,104 @@ const redIcon = new L.Icon({
     iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34],
 })
 
-const StreamPlayer = ({ url }) => {
+const StreamPlayer = ({ url, status }) => {
     const videoRef = useRef(null)
+    const [state, setState] = useState('loading') // loading | playing | failed
+    const timeoutRef = useRef(null)
+
     useEffect(() => {
+        if (status === 'offline' && !url) {
+            setState('failed')
+            return
+        }
+
+        setState('loading')
+
+        // timeout 60 detik
+        timeoutRef.current = setTimeout(() => {
+            setState('failed')
+        }, 60000)
+
         if (!url || !videoRef.current) return
+
         if (Hls.isSupported()) {
             const hls = new Hls()
             hls.loadSource(url)
             hls.attachMedia(videoRef.current)
-            return () => hls.destroy()
+
+            hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                setState('playing')
+                clearTimeout(timeoutRef.current)
+                videoRef.current?.play()
+            })
+
+            hls.on(Hls.Events.ERROR, (event, data) => {
+                if (data.fatal) {
+                    setState('failed')
+                    clearTimeout(timeoutRef.current)
+                }
+            })
+
+            return () => {
+                hls.destroy()
+                clearTimeout(timeoutRef.current)
+            }
         } else if (videoRef.current.canPlayType('application/vnd.apple.mpegurl')) {
             videoRef.current.src = url
+            videoRef.current.oncanplay = () => {
+                setState('playing')
+                clearTimeout(timeoutRef.current)
+            }
+            videoRef.current.onerror = () => {
+                setState('failed')
+                clearTimeout(timeoutRef.current)
+            }
         }
-    }, [url])
+    }, [url, status])
+
+    if (state === 'failed') {
+        return (
+            <div style={{
+                width: '100%', height: '160px', background: '#111',
+                borderRadius: '8px', marginBottom: '8px',
+                display: 'flex', flexDirection: 'column',
+                alignItems: 'center', justifyContent: 'center', gap: '8px'
+            }}>
+                <span style={{ fontSize: '24px' }}>📴</span>
+                <span style={{ color: '#666', fontSize: '12px' }}>Stream tidak tersedia</span>
+            </div>
+        )
+    }
+
     return (
-        <video ref={videoRef} controls autoPlay muted
-            style={{ width: '100%', borderRadius: '8px', marginBottom: '8px', background: '#000' }}
-        />
+        <div style={{ position: 'relative', marginBottom: '8px' }}>
+            {state === 'loading' && (
+                <div style={{
+                    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                    background: '#1a1a1a', borderRadius: '8px',
+                    display: 'flex', flexDirection: 'column',
+                    alignItems: 'center', justifyContent: 'center', gap: '8px',
+                    zIndex: 1
+                }}>
+                    <div style={{
+                        width: '32px', height: '32px', border: '3px solid #f7c5d0',
+                        borderTop: '3px solid transparent', borderRadius: '50%',
+                        animation: 'spin 1s linear infinite'
+                    }} />
+                    <span style={{ color: '#888', fontSize: '12px' }}>Memuat stream...</span>
+                    <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+                </div>
+            )}
+            <video
+                ref={videoRef}
+                controls
+                muted
+                style={{
+                    width: '100%', borderRadius: '8px', background: '#000',
+                    display: state === 'loading' ? 'none' : 'block'
+                }}
+            />
+        </div>
     )
 }
 
@@ -278,12 +359,10 @@ const Map = () => {
                                 >
                                     <Popup maxWidth={320}>
                                         <div style={{ width: '300px', fontFamily: 'Zen Kaku Gothic New, sans-serif' }}>
-                                            {camera.streamUrl && camera.status === 'online' && <StreamPlayer url={camera.streamUrl} />}
-                                            {camera.status === 'offline' && (
-                                                <div style={{ width: '100%', height: '120px', background: '#2a2a2a', borderRadius: '8px', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                                    <span style={{ color: '#666', fontSize: '13px' }}>📴 Stream tidak tersedia</span>
-                                                </div>
-                                            )}
+                                            {camera.streamUrl && (
+                                                <StreamPlayer url={camera.streamUrl} status={camera.status} />
+                                            )
+                                            }
                                             <strong style={{ color: '#4a4a4a' }}>{camera.name}</strong>
                                             <p style={{ margin: '4px 0', color: '#8a8a8a', fontSize: '13px' }}>{camera.location}</p>
                                             <p style={{ margin: '2px 0', color: '#c9b8e8', fontSize: '12px' }}>{camera.wilayah}</p>
@@ -326,46 +405,46 @@ const Map = () => {
                         <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px' }}>
                             <thead>
                                 <tr style={{ background: 'linear-gradient(135deg, #fde8ed, #ede8f7)' }}>
-                                {['Nama', 'Lokasi', 'Wilayah', 'Status', 'Stream'].map(h => (
-                                    <th key={h} style={{ padding: '12px 16px', textAlign: 'left', borderBottom: '2px solid #f7c5d0', color: '#4a4a4a', fontWeight: '600', fontSize: '13px' }}>{h}</th>
+                                    {['Nama', 'Lokasi', 'Wilayah', 'Status', 'Stream'].map(h => (
+                                        <th key={h} style={{ padding: '12px 16px', textAlign: 'left', borderBottom: '2px solid #f7c5d0', color: '#4a4a4a', fontWeight: '600', fontSize: '13px' }}>{h}</th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {paged.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={5} style={{ padding: '32px', textAlign: 'center', color: '#8a8a8a' }}>
+                                            <span style={{ fontSize: '32px' }}>🌸</span>
+                                            <p style={{ margin: '8px 0 0' }}>
+                                                {wilayah === 'Semua' ? 'Pilih wilayah terlebih dahulu' : 'Tidak ada kamera ditemukan'}
+                                            </p>
+                                        </td>
+                                    </tr>
+                                ) : paged.map((camera, i) => (
+                                    <tr key={camera.id} style={{ background: i % 2 === 0 ? 'white' : '#fdf6f0' }}>
+                                        <td style={{ padding: '12px 16px', borderBottom: '1px solid #fde8ed', fontSize: '14px' }}>{camera.name}</td>
+                                        <td style={{ padding: '12px 16px', borderBottom: '1px solid #fde8ed', fontSize: '14px', color: '#8a8a8a' }}>{camera.location}</td>
+                                        <td style={{ padding: '12px 16px', borderBottom: '1px solid #fde8ed', fontSize: '12px', color: '#c9b8e8' }}>{camera.wilayah}</td>
+                                        <td style={{ padding: '12px 16px', borderBottom: '1px solid #fde8ed' }}>
+                                            <span style={{
+                                                background: camera.status === 'online' ? '#e8f7f2' : '#fff2f0',
+                                                color: camera.status === 'online' ? '#52c41a' : '#ff4d4f',
+                                                padding: '3px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '600'
+                                            }}>
+                                                {camera.status === 'online' ? '🟢 Online' : '🔴 Offline'}
+                                            </span>
+                                        </td>
+                                        <td style={{ padding: '12px 16px', borderBottom: '1px solid #fde8ed' }}>
+                                            {camera.streamUrl && camera.status === 'online' ? (
+                                                <a href={camera.streamUrl} target="_blank" rel="noreferrer" style={{ color: '#c9b8e8', fontSize: '13px', fontWeight: '600' }}>🎥 Lihat</a>
+                                            ) : (
+                                                <span style={{ color: '#ccc', fontSize: '13px' }}>—</span>
+                                            )}
+                                        </td>
+                                    </tr>
                                 ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {paged.length === 0 ? (
-                                <tr>
-                                    <td colSpan={5} style={{ padding: '32px', textAlign: 'center', color: '#8a8a8a' }}>
-                                        <span style={{ fontSize: '32px' }}>🌸</span>
-                                        <p style={{ margin: '8px 0 0' }}>
-                                            {wilayah === 'Semua' ? 'Pilih wilayah terlebih dahulu' : 'Tidak ada kamera ditemukan'}
-                                        </p>
-                                    </td>
-                                </tr>
-                            ) : paged.map((camera, i) => (
-                                <tr key={camera.id} style={{ background: i % 2 === 0 ? 'white' : '#fdf6f0' }}>
-                                    <td style={{ padding: '12px 16px', borderBottom: '1px solid #fde8ed', fontSize: '14px' }}>{camera.name}</td>
-                                    <td style={{ padding: '12px 16px', borderBottom: '1px solid #fde8ed', fontSize: '14px', color: '#8a8a8a' }}>{camera.location}</td>
-                                    <td style={{ padding: '12px 16px', borderBottom: '1px solid #fde8ed', fontSize: '12px', color: '#c9b8e8' }}>{camera.wilayah}</td>
-                                    <td style={{ padding: '12px 16px', borderBottom: '1px solid #fde8ed' }}>
-                                        <span style={{
-                                            background: camera.status === 'online' ? '#e8f7f2' : '#fff2f0',
-                                            color: camera.status === 'online' ? '#52c41a' : '#ff4d4f',
-                                            padding: '3px 12px', borderRadius: '20px', fontSize: '12px', fontWeight: '600'
-                                        }}>
-                                            {camera.status === 'online' ? '🟢 Online' : '🔴 Offline'}
-                                        </span>
-                                    </td>
-                                    <td style={{ padding: '12px 16px', borderBottom: '1px solid #fde8ed' }}>
-                                        {camera.streamUrl && camera.status === 'online' ? (
-                                            <a href={camera.streamUrl} target="_blank" rel="noreferrer" style={{ color: '#c9b8e8', fontSize: '13px', fontWeight: '600' }}>🎥 Lihat</a>
-                                        ) : (
-                                            <span style={{ color: '#ccc', fontSize: '13px' }}>—</span>
-                                        )}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
