@@ -6,6 +6,7 @@ const cameraRoutes = require('./routes/cameras')
 const eventRoutes = require('./routes/events')
 const authRoutes = require('./routes/auth')
 const analyticsRoutes = require('./routes/analytics')
+const userRoutes = require('./routes/users')
 
 const app = express()
 
@@ -23,6 +24,7 @@ app.use('/api/cameras', cameraRoutes)
 app.use('/api/events', eventRoutes)
 app.use('/api/auth', authRoutes)
 app.use('/api/analytics', analyticsRoutes)
+app.use('/api/users', userRoutes)
 
 app.get('/api/debug', (req, res) => {
     res.json({
