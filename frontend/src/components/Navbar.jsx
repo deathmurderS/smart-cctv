@@ -17,6 +17,7 @@ const Navbar = () => {
         { label: '📷 Cameras', path: '/cameras' },
         { label: '⚡ Events', path: '/events' },
         { label: '🗺️ Map', path: '/map' },
+        { label: '⚙️ Settings', path: '/settings' },
     ]
 
     return (

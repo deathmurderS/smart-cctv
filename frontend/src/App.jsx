@@ -7,6 +7,7 @@ import Dashboard from './pages/Dashboard'
 import Cameras from './pages/Cameras'
 import Events from './pages/Events'
 import Map from './pages/Map'
+import Settings from './pages/Settings'
 
 const PrivateRoute = ({ children }) => {
   const token = localStorage.getItem('token')
@@ -32,6 +33,7 @@ const App = () => {
           <Route path="/cameras" element={<PrivateRoute><Cameras /></PrivateRoute>} />
           <Route path="/events" element={<PrivateRoute><Events /></PrivateRoute>} />
           <Route path="/map" element={<PrivateRoute><Map /></PrivateRoute>} />
+          <Route path="/settings" element={<PrivateRoute><Settings /></PrivateRoute>} />
         </Routes>
       </BrowserRouter>
     </Sentry.ErrorBoundary>

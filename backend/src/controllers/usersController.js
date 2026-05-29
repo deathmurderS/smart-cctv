@@ -2,54 +2,50 @@ const { PrismaClient } = require('@prisma/client')
 const bcrypt = require('bcryptjs')
 const prisma = new PrismaClient()
 
-const getUsers = async (req, res) => {
+const getProfile = async (req, res) => {
     try {
-        const users = await prisma.user.findMany({
-            select: { id: true, name: true, email: true, role: true }
-        })
-        res.json(users)
-    } catch (error) {
-        res.status(500).json({ message: error.message })
-    }
-}
-
-const getUserById = async (req, res) => {
-    try {
-        const { id } = req.params
         const user = await prisma.user.findUnique({
-            where: { id: parseInt(id) },
-            select: { id: true, name: true, email: true, role: true }
+            where: { id: req.user.userId },
+            select: { id: true, name: true, email: true, role: true, createdAt: true }
         })
-        if (!user) return res.status(404).json({ message: 'User not found' })
         res.json(user)
     } catch (error) {
         res.status(500).json({ message: error.message })
     }
 }
 
-const createUser = async (req, res) => {
+const updateProfile = async (req, res) => {
     try {
-        const { name, email, password, role } = req.body
-        const hashedPassword = await bcrypt.hash(password, 10)
-        const user = await prisma.user.create({
-            data: { name, email, password: hashedPassword, role }
+        const { name, email } = req.body
+        const user = await prisma.user.update({
+            where: { id: req.user.userId },
+            data: { name, email },
+            select: { id: true, name: true, email: true, role: true }
         })
-        res.status(201).json(user)
+        res.json(user)
     } catch (error) {
         res.status(500).json({ message: error.message })
     }
 }
 
-const deleteUser = async (req, res) => {
+const changePassword = async (req, res) => {
     try {
-        const { id } = req.params
-        await prisma.user.delete({
-            where: { id: parseInt(id) }
+        const { oldPassword, newPassword } = req.body
+        const user = await prisma.user.findUnique({ where: { id: req.user.userId } })
+
+        const isValid = await bcrypt.compare(oldPassword, user.password)
+        if (!isValid) return res.status(400).json({ message: 'Password lama salah' })
+
+        const hashed = await bcrypt.hash(newPassword, 10)
+        await prisma.user.update({
+            where: { id: req.user.userId },
+            data: { password: hashed }
         })
-        res.json({ message: 'User deleted' })
+
+        res.json({ message: 'Password berhasil diubah' })
     } catch (error) {
         res.status(500).json({ message: error.message })
     }
 }
 
-module.exports = { getUsers, getUserById, createUser, deleteUser }
+module.exports = { getProfile, updateProfile, changePassword }
