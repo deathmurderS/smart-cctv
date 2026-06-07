@@ -73,6 +73,7 @@ const checkStreamHealth = async (req, res) => {
         
         // Threshold: 3000ms untuk rendering/loading yang dianggap online
         const isOnline = response.ok && responseTime < 3000
+        console.log(responseTime)
 
         await prisma.camera.update({
             where: { id: parseInt(id) },
